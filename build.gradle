@@ -6,7 +6,7 @@
  */
 
 plugins {
-    id "java"
+    id "groovy"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -14,8 +14,13 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
+    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
     implementation 'org.jetbrains:annotations:20.1.0'
+    implementation 'com.github.bczhc:java-lib:18a858c167'
+    implementation 'org.json:json:20210307'
+    implementation 'com.github.bczhc:jni-java:292ec4a849'
 }
