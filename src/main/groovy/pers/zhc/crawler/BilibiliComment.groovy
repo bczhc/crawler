@@ -6,6 +6,10 @@ import pers.zhc.jni.sqlite.SQLite3
 import pers.zhc.util.IOUtils
 import pers.zhc.util.Random
 
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledThreadPoolExecutor
+
 /**
  * @author bczhc
  */
@@ -14,7 +18,7 @@ class BilibiliComment {
     static def mode = Mode.TIME_SORT
 
     static {
-        JNILoader.load("/home/bczhc/code/jni/build/libjni-lib.so")
+        JNILoader.loadMyJNILib()
     }
 
     static void main(String[] args) {
@@ -121,5 +125,42 @@ class BilibiliComment {
         reader.close()
 
         return out.toString()
+    }
+}
+
+class CommentSort {
+    static {
+        JNILoader.loadMyJNILib()
+    }
+
+    static void main(String[] args) {
+
+        int prevTimestamp = 1627350540
+
+        def db = SQLite3.open("./comments.db")
+
+        def statement = db.compileStatement("select ctime, message from comment where ctime >= ? order by ctime")
+        statement.bind([prevTimestamp] as Object[])
+        def cursor = statement.getCursor()
+
+        def resultJSONArray = []
+        while (cursor.step()) {
+            def timestamp = cursor.getInt(0)
+            def message = cursor.getText(1)
+
+            resultJSONArray.add([
+                    "ctime": timestamp,
+                    "message": message
+            ])
+        }
+
+        statement.release()
+        db.close()
+
+        def r = new JSONArray(resultJSONArray).toString()
+        def writer = new File("messages.json").newPrintWriter("UTF-8")
+        writer.write(r)
+        writer.flush()
+        writer.close()
     }
 }
